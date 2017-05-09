@@ -11,6 +11,11 @@ public class PlayerController : MonoBehaviour {
     public GameObject jetpackParticles;
     public GameObject bullet;
     public GameObject gunMuzzle;
+
+    public AudioClip shootSound;
+    public AudioClip deathSound;
+
+    private AudioSource audioSource;
     
     private Animator anim;
     private Rigidbody2D hero;
@@ -38,6 +43,7 @@ public class PlayerController : MonoBehaviour {
     {
         anim = GetComponent<Animator>();
         hero = GetComponent<Rigidbody2D>();
+        audioSource = GetComponent<AudioSource>();
 	}
 	
 	// Update is called once per frame
@@ -177,9 +183,10 @@ public class PlayerController : MonoBehaviour {
                 Destroy(bulletClone, 1f); //bullet has timed life
                 shootingCooldownOn = true;
                 Invoke("GunCooldown", 1);  //shooting cooldown, a time before player can shoot again
-                
-            }
 
+                //play shooting sound
+                audioSource.PlayOneShot(shootSound);
+            }
 
             //set animation after everything has been checked previously
             anim.SetInteger("State", state);
@@ -257,26 +264,22 @@ public class PlayerController : MonoBehaviour {
         {
             hittingWall = true;
         }
-
+        //check also if dead is false because of a rare case where the enemy pushes your dead body into the spikes and it would trigger Death twice in that case
         //collision with the spike and spikeball
-        if (collision.gameObject.tag == "Spike")
+        if (collision.gameObject.tag == "Spike" && dead == false)
         {
-            dead = true;
-            hero.velocity *= 0;
-            anim.SetInteger("State", 3);
-            Invoke("ResetGame", 2);
+            Death();
         }
 
         //collision with enemy
-        if (collision.gameObject.tag == "Enemy")
+        if (collision.gameObject.tag == "Enemy" && dead == false)
         {
             //checking if the enemy is dead from its animation state, you cant die if hitting a dead enemy
             if (collision.gameObject.GetComponent<Animator>().GetInteger("State") != 1)
             {
-                dead = true;
-                hero.velocity *= 0;
-                anim.SetInteger("State", 3);
-                Invoke("ResetGame", 2);
+                //EnemyController script = (EnemyController) collision.gameObject.GetComponent(typeof(EnemyController));
+                //script.movementSpeed = 0;
+                Death();
             }
         }
 
@@ -299,24 +302,15 @@ public class PlayerController : MonoBehaviour {
         //collision with the door
         if (collision.gameObject.tag == "Door")
         {
-            string scenename = SceneManager.GetActiveScene().name;
+            collision.gameObject.GetComponent<AudioSource>().Play();
 
-            if (scenename == "Level1")
-            {
-                SceneManager.LoadScene("Level2");
-            }
-            else if (scenename == "Level2")
-            {
-                SceneManager.LoadScene("Level3");
-            }
-            else if (scenename == "Level3")
-            {
-                SceneManager.LoadScene("Level4");
-            }
-            else if (scenename == "Level4")
-            {
-                SceneManager.LoadScene("Level5");
-            }
+            //not actually dead, but it functions like a pause in this case
+            dead = true;
+            anim.SetInteger("State", 0);
+            hero.velocity *= 0;
+
+            Invoke("NextLevel", 1f);
+            
         }
 
         //collision with the key icon
@@ -428,5 +422,37 @@ public class PlayerController : MonoBehaviour {
     private void GunCooldown()
     {
         shootingCooldownOn = false;
+    }
+
+    private void Death()
+    {
+        audioSource.PlayOneShot(deathSound);
+        
+        dead = true;
+        hero.velocity *= 0;
+        anim.SetInteger("State", 3);
+        Invoke("ResetGame", 2);
+    }
+
+    private void NextLevel()
+    {
+        string scenename = SceneManager.GetActiveScene().name;
+
+        if (scenename == "Level1")
+        {
+            SceneManager.LoadScene("Level2");
+        }
+        else if (scenename == "Level2")
+        {
+            SceneManager.LoadScene("Level3");
+        }
+        else if (scenename == "Level3")
+        {
+            SceneManager.LoadScene("Level4");
+        }
+        else if (scenename == "Level4")
+        {
+            SceneManager.LoadScene("Level5");
+        }
     }
 }
