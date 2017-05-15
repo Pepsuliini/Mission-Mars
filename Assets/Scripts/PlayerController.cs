@@ -303,7 +303,7 @@ public class PlayerController : MonoBehaviour {
         if (collision.gameObject.tag == "Door")
         {
             collision.gameObject.GetComponent<AudioSource>().Play();
-
+            collision.gameObject.GetComponent<Animator>().SetInteger("State", 1);
             //not actually dead, but it functions like a pause in this case
             dead = true;
             anim.SetInteger("State", 0);
@@ -453,6 +453,10 @@ public class PlayerController : MonoBehaviour {
         else if (scenename == "Level4")
         {
             SceneManager.LoadScene("Level5");
+        }
+        else if (scenename == "Level5")
+        {
+            SceneManager.LoadScene("The_end");
         }
     }
 }
