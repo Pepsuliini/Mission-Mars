@@ -26,8 +26,9 @@ public class BulletController : MonoBehaviour {
             collision.gameObject.GetComponent<BoxCollider2D>().enabled = false; //disable its collider so it doesnt hit the hero
             collision.gameObject.GetComponent<Rigidbody2D>().gravityScale = 0f; //make its gravity 0 so it doesnt drop through the floor because its collider is disabled
             collision.gameObject.GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0); //make it stop moving when dead
-            collision.gameObject.transform.position = new Vector3(collision.gameObject.transform.position.x, collision.gameObject.transform.position.y - 1.1f, 0); //a fix to the bad death animation in the sprite, dont use normally
-            Destroy(collision.gameObject, 1f);
+            collision.gameObject.GetComponent<AudioSource>().Play(); //play enemy death sound
+            //collision.gameObject.transform.position = new Vector3(collision.gameObject.transform.position.x, collision.gameObject.transform.position.y - 1.1f, 0); //a fix to the bad death animation in the sprite, dont use normally
+            Destroy(collision.gameObject, 2f);
         }
 
         //if hitting anything except the hero or the enemymarker then destroy the bullet

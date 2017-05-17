@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour {
 
-    private float movementSpeed = 3;
+    public float movementSpeed = 3;
 
 	// Use this for initialization
 	void Start ()
